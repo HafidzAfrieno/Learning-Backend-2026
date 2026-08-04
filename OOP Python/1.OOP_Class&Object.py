@@ -21,4 +21,3 @@ mahasiswa_unnes.nama = "Yono Suptoroto"
 mahasiswa_unnes.nim = "84308092A2342"
 mahasiswa_unnes.umur=21
 print(f"Nama {mahasiswa_unnes.nama} memiliki NIM {mahasiswa_unnes.nim} dan berusia {mahasiswa_unnes.umur}")
-
