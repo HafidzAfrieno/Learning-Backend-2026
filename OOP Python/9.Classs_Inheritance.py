@@ -1,5 +1,5 @@
 class Mahasiswa:
-    def __init__(self,nama = 'none',umur = '0'):
+    def __init__(self,nama = 'none',umur = 0):
         self.nama = nama
         self.umur = umur
 
@@ -27,3 +27,6 @@ IPk_mahasiswa_1 = Nilai_Mahasiswa('Hafidz Akmal',20,3.8,'Eko')
 IPk_mahasiswa_1.tampil_umur()
 IPk_mahasiswa_1.tampil_nilai()
 IPk_mahasiswa_1.tampil_dosen()
+
+Mahasiswa_2 = Dosen_Wali('Eko',nama='Budiono',umur=18)
+Mahasiswa_2.tampil_dosen()
