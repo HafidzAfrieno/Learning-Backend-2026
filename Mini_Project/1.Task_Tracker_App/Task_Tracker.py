@@ -22,18 +22,31 @@ class InputData:
 
         # Parser 'delete'
         self.parser_delete = self.subparser.add_parser("delete", help="Menghapus Tugas")
-        self.parser_delete.add_argument("id", type=str, help="ID tugas yang akan dihapus")        
+        self.parser_delete.add_argument("id", type=str, help="ID tugas yang akan dihapus")
+
+        # Parser untuk 'mark-done'
+        self.parser_mark = self.subparser.add_parser("mark-done", help="Menandai Tugas Selesai")
+        self.parser_mark.add_argument("id", type=str, help="ID tugas yang ingin ditandai selesai")
+
+        # Parser untuk 'mark-progress'
+        self.parser_mark = self.subparser.add_parser("mark-progress", help="Menandai Tugas Masih Proses")
+        self.parser_mark.add_argument("id", type=str, help="ID tugas yang ingin ditandai Masih Proses")
+
+        # Parser untuk 'list'
+        self.parser_list = self.subparser.add_parser("list", help="Menampilkan Tugas Yang Dipilih")
+        self.parser_list.add_argument("status",nargs="?" ,type=str, help="Status Tugas Yang Ingin Ditampilkan")
 
     def parse_arguments(self):
         self.args = self.parser.parse_args()
         return self.args
+
 
 class JsonFileHandler(InputData):
     def __init__(self):
         super().__init__()
         self.id = ""
         self.descriptions = ""
-        self.status = "todo"
+        self.status = "Pending"
         self.createdAt = ""
         self.updatedAt = ""
         self.fileName = "data.json"
@@ -110,6 +123,70 @@ class JsonFileHandler(InputData):
         else:
             print(f"Tugas dengan ID '{task_id}' tidak ditemukan!")
 
+    def mark_done(self,parsed_argumens):
+        task_id = parsed_argumens.id
+        updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        task_list = self.openFilejson()
+        updated = False
+
+        for task in task_list:
+            if task["id"] == task_id:
+                task["status"] = "Done"
+                task["updatedAt"] = updated_at
+                updated = True
+                break
+
+        if updated:
+            with open(self.fileName, "w", encoding="utf-8") as file:
+                json.dump(task_list, file, indent=4, ensure_ascii=False)
+            print(f"Berhasil memperbarui Status (ID: {task_id})!")
+        else:
+            print(f"Tugas dengan ID '{task_id}' tidak ditemukan!")
+
+    def mark_progress(self,parsed_argumens):
+            task_id = parsed_argumens.id
+            updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+            task_list = self.openFilejson()
+            updated = False
+    
+            for task in task_list:
+                if task["id"] == task_id:
+                    task["status"] = "Progress"
+                    task["updatedAt"] = updated_at
+                    updated = True
+                    break
+    
+            if updated:
+                with open(self.fileName, "w", encoding="utf-8") as file:
+                    json.dump(task_list, file, indent=4, ensure_ascii=False)
+                print(f"Berhasil memperbarui Status (ID: {task_id})!")
+            else:
+                print(f"Tugas dengan ID '{task_id}' tidak ditemukan!")
+
+    def list_data(self, parsed_argumens):
+        task_list = self.openFilejson()
+        if not task_list:
+            print("Belum ada tugas yang tersimpan.")
+            return
+        
+        status_data = getattr(parsed_argumens, 'status', None) #supaya mengambil status opsional
+
+        if status_data:
+            task_list = [task for task in task_list if task["status"].lower() == status_data.lower()]
+            if not task_list:
+                print(f"Tidak ada tugas dengan status '{status_data}'.")
+                return
+
+        print("\n--- DAFTAR TUGAS ---")
+        for task in task_list:
+            print(f"ID     : {task['id']}")
+            print(f"Task   : {task['descriptions']}")
+            print(f"Status : {task['status']}")
+            print(f"Dibuat : {task['createdAt']}")
+            print("-" * 25)
+        
 def main():
     app = JsonFileHandler()
     parsed_args = app.parse_arguments()
@@ -120,6 +197,12 @@ def main():
         app.update_data(parsed_args)
     elif parsed_args.command == "delete":
         app.delete_data(parsed_args)
+    elif parsed_args.command == "mark-done":
+        app.mark_done(parsed_args)
+    elif parsed_args.command == "mark-progress":
+        app.mark_progress(parsed_args)
+    elif parsed_args.command == "list":
+        app.list_data(parsed_args)
     else:
         app.parser.print_help()
 
