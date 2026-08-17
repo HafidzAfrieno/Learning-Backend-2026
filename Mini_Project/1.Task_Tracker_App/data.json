@@ -1,12 +1,5 @@
 [
     {
-        "id": "d0b278c9",
-        "descriptions": "Belajar Pemrograman Python",
-        "status": "todo",
-        "createdAt": "2026-08-17 13:16:11",
-        "updatedAt": "2026-08-17 13:16:11"
-    },
-    {
         "id": "fd87270b",
         "descriptions": "Belajar machine Learning",
         "status": "todo",

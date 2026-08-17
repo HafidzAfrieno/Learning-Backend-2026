@@ -11,14 +11,18 @@ class InputData:
         self.init_parsers()
 
     def init_parsers(self):
-        # Parser untuk 'add'
+        # Parser 'add'
         self.parser_add = self.subparser.add_parser("add", help="Menambah Tugas Baru")
         self.parser_add.add_argument("task", type=str, help="Deskripsi tugas yang akan ditambahkan")
 
-        # Parser untuk 'update'
+        # Parser 'update'
         self.parser_update = self.subparser.add_parser("update", help="Mengedit Tugas")
         self.parser_update.add_argument("id", type=str, help="ID tugas yang akan diubah")
         self.parser_update.add_argument("task", type=str, help="Deskripsi tugas yang baru")
+
+        # Parser 'delete'
+        self.parser_delete = self.subparser.add_parser("delete", help="Menghapus Tugas")
+        self.parser_delete.add_argument("id", type=str, help="ID tugas yang akan dihapus")        
 
     def parse_arguments(self):
         self.args = self.parser.parse_args()
@@ -94,6 +98,17 @@ class JsonFileHandler(InputData):
         else:
             print(f"Tugas dengan ID '{task_id}' tidak ditemukan!")
 
+    def delete_data(self,parsed_argumens):
+        task_id = parsed_argumens.id
+        task_list = self.openFilejson()
+        filter_taskList = [task for task in task_list if task["id"] != task_id]
+
+        if len(filter_taskList) < len(task_list):
+            with open(self.fileName, "w", encoding="utf-8") as file:
+                json.dump(filter_taskList, file, indent=4, ensure_ascii=False)
+            print(f"Berhasil menghapus Tugas dengan ID: {task_id}!")
+        else:
+            print(f"Tugas dengan ID '{task_id}' tidak ditemukan!")
 
 def main():
     app = JsonFileHandler()
@@ -103,6 +118,8 @@ def main():
         app.create_data(parsed_args)
     elif parsed_args.command == "update":
         app.update_data(parsed_args)
+    elif parsed_args.command == "delete":
+        app.delete_data(parsed_args)
     else:
         app.parser.print_help()
 
