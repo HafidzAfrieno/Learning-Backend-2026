@@ -1,7 +1,9 @@
-{
-    "id": 1,
-    "descriptions": "",
-    "status" : ["todo", "in-progress", "done"],
-    "createdAt": "",
-    "updatedAt" : ""
-}
+[
+    {
+        "id": "",
+        "descriptions": "",
+        "status": "todo",
+        "createdAt": "",
+        "updatedAt": ""
+    }
+]

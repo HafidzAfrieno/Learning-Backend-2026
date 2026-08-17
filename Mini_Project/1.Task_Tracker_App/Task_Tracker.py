@@ -7,7 +7,7 @@ from datetime import datetime
 class InputData:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description="APP TASK TRACKER")
-        self.subparser = self.parser.add_subparsers(dest="Commnad",help="Perintah Yang Tersedia")
+        self.subparser = self.parser.add_subparsers(dest="command",help="Perintah Yang Tersedia")
 
     def add_data(self):
         self.parser_add = self.subparser.add_parser("add",help="Menambah Tugas Baru")
@@ -27,18 +27,23 @@ class JsonFileHandler(InputData):
 
     def openFilejson(self):
         task_list = []
-        if path.exists(self.file):
+        if path.exists(self.fileName):
             try:
-                with open(self.file,"r",encoding="utf-8") as file:
-                    task_list = json.load(file)
+                with open(self.fileName,"r",encoding="utf-8") as file:
+                    data = json.load(file)
+                    if isinstance(data, list):
+                        tasks_list = data
+                    elif isinstance(data, dict):
+                        tasks_list = [data]
+
             except json.JSONDecodeError:
                 task_list = []
         return task_list
         
     def create_data(self):
         parsed_argumens = self.add_data()
-        if parsed_argumens.Commmand == "add":
-            task_id = str(uuid.uuid4())[:3]
+        if parsed_argumens.task == "add":
+            task_id = str(uuid.uuid4())[:8]
             created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.id = task_id
             self.descriptions = parsed_argumens.task
@@ -53,10 +58,10 @@ class JsonFileHandler(InputData):
             "updatedAt"     : self.updatedAt
         }
 
-        tasks_list = self.openFilejson()
-        tasks_list.append(new_task)
+        task_list = self.openFilejson()
+        task_list.append(new_task)
         with open(self.fileName, "w", encoding="utf-8") as file:
-            json.dump(tasks_list, file, indent=4, ensure_ascii=False)
+            json.dump(task_list, file, indent=4, ensure_ascii=False)
 
         print(f"Berhasil menambahkan dan menyimpan Tugas (ID: {self.id})!")
 
