@@ -15,19 +15,18 @@ class EnvironmentLoader:
                 line = line.strip() # Hilangkan spasi 
                 if not line or line.startswith('#'): # Abaikan baris kosong dan #
                     continue
-
+                
                 if "=" in line:
-                    key,value = line.split("=",1)
+                    key, value = line.split("=", 1)
                     key = key.strip()
                     value = value.strip()
-        os.environ[key] = value
+
+                    if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                        value = value[1:-1]
+
+                    os.environ[key] = value
 
     def get_env(self, key, default=None):
         return os.getenv(key, default)
-
-class RequestApi:
-    def __init__(self):
-        pass
-
 
 
