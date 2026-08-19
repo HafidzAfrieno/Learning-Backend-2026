@@ -36,11 +36,9 @@ class GitHubCommitService:
         self.env_loader = EnvironmentLoader()
         self.token = self.env_loader.get_env("TOKEN")
         self.owner = self.env_loader.get_env("OWNER")
-        self.repo  = self.env_loader.get_env("REPO")
-        self.ref   = self.env_loader.get_env("REF")
 
     def get_commit_statuses(self):
-        url = f"https://api.github.com/repos/{self.owner}/{self.repo}/commits/{self.ref}"
+        url = f"https://api.github.com/users/{self.owner}/events"
         headers = {
             "Authorization": f"Bearer {self.token}",
             "Accept": "application/vnd.github+json",
@@ -51,9 +49,22 @@ class GitHubCommitService:
         try:
             with urlopen(req) as response:
                 data = response.read().decode("utf-8")
-                parsed_data = json.loads(data)
-                commit_message = parsed_data["commit"]["message"]
-                return commit_message
+                events = json.loads(data)
+                for event in events:
+                    event_type = event.get("type")
+                    repo_name = event.get("repo",{}).get("name")
+                    
+                    if event_type == "PushEvent":
+                        commit_count = len(event.get("payload", {}).get("commits", []))
+                        print(f"- Pushed {commit_count} commits to {repo_name}")
+                        
+                    elif event_type == "IssuesEvent":
+                        action = event.get("payload", {}).get("action")
+                        if action == "opened":
+                            print(f"- Opened a new issue in {repo_name}")
+                            
+                    elif event_type == "WatchEvent":
+                        print(f"- Starred {repo_name}")
         except HTTPError as error:
             print(f"Gagal HTTP Error: {error.code} - {error.reason}")
             return None
