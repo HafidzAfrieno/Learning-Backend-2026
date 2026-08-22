@@ -11,8 +11,25 @@ class InputData:
         self.init_parsers()
 
     def init_parsers(self):
-        print("hallo")
+        # Parser 'add'
+        self.parser_add = self.subparser.add_parser("add", help="Menambah Pengeluaran Baru")
+        self.parser_add.add_argument("--description", type=str, help="Deskripsi Pengeluaran yang akan ditambahkan")
+        self.parser_add.add_argument("--amount", type=float, help="Jumlah Uang yang akan ditambahkan")
 
+        # Parser untuk 'list'
+        self.parser_list = self.subparser.add_parser("list", help="Menampilkan semua pengeluaran")
+
+        # Parser untuk 'summary'
+        self.parser_list = self.subparser.add_parser("summary", help="Menampilkan Ringkasan Pengeluaran")
+        self.parser_list.add_argument("--month",nargs="?" ,type=int, help="Menampilkan Ringkasan Tiap Bulan")
+
+        # Parser 'delete'
+        self.parser_delete = self.subparser.add_parser("delete", help="Menghapus Pengeluaran")
+        self.parser_delete.add_argument("--id", type=str, help="ID Pengeluaran yang dihapus")
+
+    def parse_arguments(self):
+        self.args = self.parser.parse_args()
+        return self.args
 def main():
     print()
 
