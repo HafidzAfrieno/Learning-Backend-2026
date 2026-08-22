@@ -14,7 +14,7 @@ class InputData:
         # Parser 'add'
         self.parser_add = self.subparser.add_parser("add", help="Menambah Pengeluaran Baru")
         self.parser_add.add_argument("--description", type=str, help="Deskripsi Pengeluaran yang akan ditambahkan")
-        self.parser_add.add_argument("--amount", type=float, help="Jumlah Uang yang akan ditambahkan")
+        self.parser_add.add_argument("--amount", type=int, help="Jumlah Uang yang akan ditambahkan")
 
         # Parser untuk 'list'
         self.parser_list = self.subparser.add_parser("list", help="Menampilkan semua pengeluaran")
@@ -30,6 +30,13 @@ class InputData:
     def parse_arguments(self):
         self.args = self.parser.parse_args()
         return self.args
+
+
+    class ExpenseCalculator:
+        def __init__(self):
+            self.nominal = 0
+            self.mounth = ""
+
 def main():
     print()
 
