@@ -1,0 +1,26 @@
+[
+    {
+        "id": "0f878482",
+        "decriptions": "Dinner",
+        "amount": 10,
+        "date": "2026-08-27 11:19:33"
+    },
+    {
+        "id": "9c8bfc87",
+        "decriptions": "Lunch",
+        "amount": 20,
+        "date": "2026-08-27 11:20:00"
+    },
+    {
+        "id": "9c8bfc87",
+        "decriptions": "Lunch",
+        "amount": 50,
+        "date": "2026-02-27 11:20:00"
+    },
+    {
+        "id": "9c8bfc87",
+        "decriptions": "Lunch",
+        "amount": 30,
+        "date": "2026-02-27 11:20:00"
+    }
+]
