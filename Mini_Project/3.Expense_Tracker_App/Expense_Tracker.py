@@ -123,6 +123,18 @@ class JsonFileHandler(InputData):
             all_count = self.calcu.sum_all_expense(expense_list)
             print(f"# Total expenses: ${all_count}")
 
+    def delete_data(self,parsed_argumens):
+        expense_id = parsed_argumens.id
+        expense_list = self.openFilejson()
+        filter_expenseList = [expense for expense in expense_list if expense["id"] != expense_id]
+
+        if len(filter_expenseList) < len(expense_list):
+            with open(self.fileName, "w", encoding="utf-8") as file:
+                json.dump(filter_expenseList, file, indent=4, ensure_ascii=False)
+            print(f"Berhasil menghapus Expense dengan ID: {expense_id}!")
+        else:
+            print(f"Expense dengan ID '{expense_id}' tidak ditemukan!")
+
 def main():
     app = JsonFileHandler()
     parsed_args = app.parse_arguments()
@@ -133,6 +145,8 @@ def main():
         app.list_data()
     elif parsed_args.command == "summary":
         app.summary_data(parsed_args)
+    elif parsed_args.command == "delete":
+        app.delete_data(parsed_args)
 
 if __name__ == "__main__":
     main()
