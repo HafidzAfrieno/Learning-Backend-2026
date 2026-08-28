@@ -10,6 +10,15 @@ Text_intro_2 = """Please select the difficulty level:
 2. Medium (5 chances)
 3. Hard (3 chances)"""
 
+def input_detection(prompt):
+    while True:
+        user_input = input(prompt)
+        try:
+            val = float(user_input)
+            return int(val) if val.is_integer() else val
+        except (ValueError, TypeError):
+            print("Input Your Number!\n")
+
 class GameController:
     def __init__(self):
         self.level = 0
@@ -31,7 +40,6 @@ class GameController:
             chances = 3
             name_level = "Hard"
         else:
-            print("Pilih Nomor Yang Benar!")
             return None, None
         return chances, name_level
 
@@ -41,8 +49,6 @@ class GameController:
             self.high_score = final_score
         return final_score
 
-    
-    
     def play_game(self, level):
         chances, name_level = self.chances_game(level)
         if chances is None:
@@ -59,7 +65,7 @@ class GameController:
             start_time = time.time()
 
             for attempt in range(1, chances + 1):
-                input_number = int(input(f"Enter your guess ({self.first_number}-{self.last_number}): "))
+                input_number = input_detection(f"Enter your guess ({self.first_number}-{self.last_number}): ")
                 if input_number == secret_number:
                     print(f"Congratulations! You guessed the correct number in {attempt} attempts.\n")
                     guessed_correctly = True
@@ -86,7 +92,7 @@ def main():
     print(Text_intro_1,"\n")
     print(Text_intro_2) 
 
-    level_pilihan = int(input("Enter your choice: "))
+    level_pilihan = input_detection("Enter your choice: ")
     NumGues.play_game(level_pilihan)
     
 if __name__ == "__main__":
