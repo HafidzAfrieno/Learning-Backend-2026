@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konverter Satuan Minimalis</title>
+  <link rel="stylesheet" href="../style/app_style.css">
+</head>
+<body>
+
+  <div class="converter-card">
+    <h1 class="title">Konverter Satuan</h1>
+    
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('panjang')">Panjang</button>
+      <button class="tab-btn" onclick="switchTab('berat')">Berat</button>
+      <button class="tab-btn" onclick="switchTab('suhu')">Suhu</button>
+    </div>
+
+    <div class="form-group">
+      <label for="input-val">Dari</label>
+      <div class="input-row">
+        <input type="number" id="input-val" placeholder="0" value="1">
+        <select id="unit-from"></select>
+      </div>
+    </div>
+
+    <div class="divider">↓</div>
+
+    <div class="form-group">
+      <label for="output-val">Ke</label>
+      <div class="input-row">
+        <input type="number" id="output-val" placeholder="0" readonly>
+        <select id="unit-to"></select>
+      </div>
+    </div>
+  </div>
+  <script src="../style/app_script.js"></script>
+</body>
+</html>
