@@ -11,17 +11,17 @@
   <div class="card">
     <h1>Unit Converter</h1>
 
-    <!-- Navigasi Kategori -->
+    <!-- Navigasi Kategori (Menambahkan parameter 'event') -->
     <div class="nav-tabs">
-      <span class="tab-item active" onclick="changeCategory('panjang')">Length</span>
-      <span class="tab-item" onclick="changeCategory('berat')">Weight</span>
-      <span class="tab-item" onclick="changeCategory('suhu')">Temperature</span>
+      <span class="tab-item active" onclick="changeCategory('length', event)">Length</span>
+      <span class="tab-item" onclick="changeCategory('weight', event)">Weight</span>
+      <span class="tab-item" onclick="changeCategory('tempr', event)">Temperature</span>
     </div>
 
     <!-- TAMPILAN 1: FORM INPUT -->
     <div id="form-section">
       <div class="form-group">
-        <label id="input-label" for="val-input">Enter the length to convert</label>
+        <label id="input-label" for="val-input">Enter value to convert</label>
         <input type="number" id="val-input" placeholder="Enter value..." value="20">
       </div>
 
@@ -41,9 +41,11 @@
     <!-- TAMPILAN 2: HASIL KONVERSI -->
     <div id="result-section" class="hidden">
       <div class="result-label">Result of your calculation</div>
-      <div class="result-value" id="result-text">20 ft = 609cm</div>
+      <div class="result-value" id="result-text">-</div>
       <button class="btn" onclick="handleReset()">Reset</button>
     </div>
   </div>
+
   <script src="../style/app_script.js"></script>
+</body>
 </html>

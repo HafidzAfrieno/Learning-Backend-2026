@@ -15,3 +15,7 @@ https://roadmap.sh/projects/expense-tracker
 Project 4. Number Guessing Game repository URL:
 https://github.com/HafidzAfrieno/Learning-Backend-2026/blob/main/Mini_Project/4.Number_Guessing_Game/Number_Guessing.py
 https://roadmap.sh/projects/number-guessing-game
+
+Project 5. Unit Converter App repository URL:
+https://github.com/HafidzAfrieno/Learning-Backend-2026/tree/main/Mini_Project/5.Unit_Converter_App
+https://roadmap.sh/projects/unit-converter

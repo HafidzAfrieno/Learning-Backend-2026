@@ -1,98 +1,114 @@
 from fastapi import FastAPI,HTTPException
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel,Field
 
-app = FastAPI(title="API Konversi Satuan")
+# uvicorn main:app --reload
 
+app = FastAPI()
+
+# Tambahkan konfigurasi CORS ini
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Mengizinkan semua origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 1. Definisi Skema Pydantic
-class ConversionRequest(BaseModel):
-    unit_type   : str = Field(...,example="length",description="Kategori konversi: 'length', 'temperature', atau 'weight'",)
-    from_unit   : str = Field(..., example="km", description="Satuan asal (misal: km, m, c, f, kg)")
-    to_unit     : str = Field(..., example="m", description="Satuan tujuan (misal: m, cm, f, c, g)")
-    from_value  : float | int = Field( ..., example=5, description="Nilai asal yang akan dikonversi")
-    to_value    : float | int | None = Field(default=None, description="Nilai hasil konversi (otomatis diisi jika kosong)")
+class ConvertNumber:
+    def __init__(self):
+        self.from_num = 0
+        self.to_num = 0
+        self.unit_length = {"km": 1, "hm": 2, "dam": 3, "m": 4, "dm": 5, "cm": 6, "mm": 7}
+        self.unit_weight = {"kg": 1, "hg": 2, "dag": 3, "g": 4, "dg": 5, "cg": 6, "mg": 7}
+        self.unit_tempr = {"c": 1, "r": 2, "f": 3, "k": 4}
 
-# 2. Fungsi Logika Konversi
-def convert_length(value: float, from_u: str, to_u: str) -> float:
-    # Konversi ke meter dulu sebagai standar
-    to_meters = {
-        "km": value * 1000,
-        "m": value,
-        "cm": value / 100,
-        "mm": value / 1000,
-        "mile": value * 1609.34,
-    }
+    def convert_length(self,from_num:int,unit_from:str,unit_to:str):
+        unit_from = unit_from.lower()
+        unit_to = unit_to.lower()
 
-    if from_u not in to_meters or to_u not in to_meters:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Satuan panjang tidak valid. Gunakan: {list(to_meters.keys())}",
-        )
+        if unit_from not in self.unit_length or unit_to not in self.unit_length:
+            raise ValueError("Satuan panjang tidak valid.")
 
-    meters = to_meters[from_u]
+        self.from_num = from_num
+        unit_type_1 = self.unit_length[unit_from]
+        unit_type_2 = self.unit_length[unit_to]
 
-    # Konversi dari meter ke satuan tujuan
-    from_meters = {
-        "km": meters / 1000,
-        "m": meters,
-        "cm": meters * 100,
-        "mm": meters * 1000,
-        "mile": meters / 1609.34,
-    }
-    return round(from_meters[to_u], 4)
+        # Selisih tingkat satuan panjang
+        step = abs(unit_type_1 - unit_type_2)
+        if unit_type_1 < unit_type_2:
+            self.to_num = from_num * (10 ** step)
+        else:                        
+            self.to_num = from_num / (10 ** step)
+        return self.to_num
 
-def convert_temperature(value: float, from_u: str, to_u: str) -> float:
-    # Ubah ke Celcius dulu
-    if from_u == "c":
-        celsius = value
-    elif from_u == "f":
-        celsius = (value - 32) * 5 / 9
-    elif from_u == "k":
-        celsius = value - 273.15
+    def convert_weight(self, from_num: float, unit_from: str, unit_to: str) -> float:
+        unit_from = unit_from.lower()
+        unit_to = unit_to.lower()
+
+        if unit_from not in self.unit_weight or unit_to not in self.unit_weight:
+            raise ValueError("Satuan berat tidak valid.")
+
+        self.from_num = from_num
+        unit_type_1 = self.unit_weight[unit_from]
+        unit_type_2 = self.unit_weight[unit_to]
+
+        # Selisih tingkat satuan berat
+        step = abs(unit_type_1 - unit_type_2)
+        if unit_type_1 < unit_type_2:
+            self.to_num = from_num * (10 ** step)
+        else:                       
+            self.to_num = from_num / (10 ** step)
+        return self.to_num
+
+    def convert_tempr(self, from_num: float, unit_from: str, unit_to: str) -> float:
+        unit_from = unit_from.lower()
+        unit_to = unit_to.lower()
+
+        if unit_from not in self.unit_tempr or unit_to not in self.unit_tempr:
+            raise ValueError("Satuan suhu tidak valid.")
+
+        self.from_num = from_num
+
+        if unit_from == "c":
+            celsius = from_num
+        elif unit_from == "r":
+            celsius = from_num * (5 / 4)
+        elif unit_from == "f":
+            celsius = (from_num - 32) * (5 / 9)
+        elif unit_from == "k":
+            celsius = from_num - 273.15
+
+        if unit_to == "c":
+            self.to_num = celsius
+        elif unit_to == "r":
+            self.to_num = celsius * (4 / 5)
+        elif unit_to == "f":
+            self.to_num = (celsius * 9 / 5) + 32
+        elif unit_to == "k":
+            self.to_num = celsius + 273.15
+        return self.to_num
+
+class ConvertRequest(BaseModel):
+    type_unit: str
+    from_num: float
+    unit_from: str
+    unit_to: str
+    
+convert = ConvertNumber()
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+@app.post("/convert")
+async def api_convert(data: ConvertRequest) -> dict:
+    if data.type_unit == "weight":
+        result = convert.convert_weight(from_num=data.from_num,unit_from=data.unit_from,unit_to=data.unit_to,)
+    elif data.type_unit == "length":
+        result = convert.convert_length( from_num=data.from_num, unit_from=data.unit_from, unit_to=data.unit_to,)
+    elif data.type_unit == "tempr":
+        result = convert.convert_tempr(from_num=data.from_num,unit_from=data.unit_from,unit_to=data.unit_to,)
     else:
-        raise HTTPException(
-            status_code=400,
-            detail="Satuan suhu tidak valid. Gunakan: 'c', 'f', atau 'k'",
-        )
-
-    # Ubah Celcius ke satuan tujuan
-    if to_u == "c":
-        return round(celsius, 2)
-    elif to_u == "f":
-        return round((celsius * 9 / 5) + 32, 2)
-    elif to_u == "k":
-        return round(celsius + 273.15, 2)
-    else:
-        raise HTTPException(
-            status_code=400,
-            detail="Satuan suhu tidak valid. Gunakan: 'c', 'f', atau 'k'",
-        )
-
-# 3. Endpoint FastAPI
-@app.post("/api/convert", response_model=ConversionRequest)
-async def create_item(item: ConversionRequest):
-    unit_type = item.unit_type.lower()
-    from_u = item.from_unit.lower()
-    to_u = item.to_unit.lower()
-
-    # Hitung nilai jika to_value belum diisi
-    if item.to_value is None:
-        if unit_type == "length":
-            item.to_value = convert_length(item.from_value, from_u, to_u)
-        elif unit_type == "temperature":
-            item.to_value = convert_temperature(item.from_value, from_u, to_u)
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="unit_type tidak valid. Gunakan 'length' atau 'temperature'",
-            )
-
-    return item
+        raise HTTPException(status_code=400, detail="Tipe unit tidak dikenal")
+    return {"result_convert": result}
