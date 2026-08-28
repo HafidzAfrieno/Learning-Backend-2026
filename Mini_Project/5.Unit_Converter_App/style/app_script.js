@@ -60,9 +60,6 @@ async function handleConvert() {
     return;
   }
 
-  // ===========================================================
-  // BAGIAN INTEGRASI API PYTHON (Mengarahkan ke port lokal 8000)
-  // ===========================================================
   try {
     const response = await fetch('http://127.0.0.1:8000/api/convert', {
       method: 'POST',
