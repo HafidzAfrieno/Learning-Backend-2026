@@ -2,9 +2,11 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse,HTMLResponse
 from fastapi.templating import Jinja2Templates
 from utils.storage_function import JsonFileHandler
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 templates = Jinja2Templates(directory='templates')
+app.mount("/static", StaticFiles(directory="static"), name="static")
 db_handler = JsonFileHandler()
 
 @app.get('/',response_class=HTMLResponse)
@@ -32,7 +34,7 @@ async def show_dashboard(request: Request):
 # 2. Halaman Tambah Artikel (GET Form)
 @app.get("/admin/create")
 async def show_create_form(request: Request):
-    return templates.TemplateResponse(request=request, name="admin/create.html")
+    return templates.TemplateResponse(request=request, name="admin/add-article.html")
 
 # Submit Tambah Artikel (POST)
 @app.post("/admin/create")
@@ -48,7 +50,7 @@ async def show_edit_form(request: Request, article_id: str):
         return templates.TemplateResponse(request=request, name="404.html", status_code=404)
     return templates.TemplateResponse(
         request=request, 
-        name="admin/edit.html", 
+        name="admin/edit-article.html", 
         context={"article": article}
     )
 

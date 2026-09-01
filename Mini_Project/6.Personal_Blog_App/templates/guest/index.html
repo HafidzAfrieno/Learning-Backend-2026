@@ -1,18 +1,34 @@
 {% extends "base.html" %}
 
-<!-- Mengganti judul halaman (opsional) -->
-{% block title %}Halaman Utama - Blog Pribadi{% endblock %}
+{% block title %}Beranda - Blog Pribadi{% endblock %}
 
-<!-- Mengisi bagian main/konten utama -->
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/guest_style.css">
+{% endblock %}
+
 {% block content %}
-    <h1>Daftar Artikel</h1>
-    
-    {% for article in articles %}
-        <div class="card">
-            <h2>{{ article.title }}</h2>
-            <p>{{ article.content }}</p>
-        </div>
-    {% else %}
-        <p>Belum ada artikel.</p>
-    {% endfor %}
+<div class="guest-container">
+    <nav class="guest-nav">
+        <a href="/" class="blog-brand">Blog Pribadi</a>
+        <a href="/admin/dashboard" class="nav-link">Admin Panel</a>
+    </nav>
+
+    <main class="article-list">
+        {% for article in articles %}
+        <article class="article-card">
+            <h2 class="article-title">
+                <a href="/article/{{ article.id }}">{{ article.title }}</a>
+            </h2>
+            <div class="article-meta">Dipublikasikan: {{ article.created_at }}</div>
+            <p class="article-snippet">{{ article.content[:180] }}...</p>
+        </article>
+        {% else %}
+        <p class="article-snippet">Belum ada artikel yang diterbitkan.</p>
+        {% endfor %}
+    </main>
+
+    <footer class="footer">
+        &copy; 2026 Blog Pribadi. All rights reserved.
+    </footer>
+</div>
 {% endblock %}
