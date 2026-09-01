@@ -1,0 +1,121 @@
+:root {
+    --bg-main: #ffffff;
+    --text-primary: #111827;
+    --text-muted: #6b7280;
+    --border-color: #f3f4f6;
+    --accent: #2563eb;
+    --radius: 8px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.guest-container {
+    max-width: 720px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Navigasi Header */
+.guest-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 40px;
+}
+
+.blog-brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.nav-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.nav-link:hover {
+    color: var(--accent);
+}
+
+/* Kartu Daftar Artikel */
+.article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.article-card {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 24px;
+}
+
+.article-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+.article-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.article-title a:hover {
+    color: var(--accent);
+}
+
+.article-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.article-snippet {
+    color: #374151;
+    margin: 0;
+}
+
+/* Detail Artikel */
+.article-detail-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px 0;
+}
+
+.article-detail-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #1f2937;
+    margin-top: 24px;
+    white-space: pre-wrap;
+}
+
+.back-home {
+    display: inline-block;
+    margin-top: 32px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}

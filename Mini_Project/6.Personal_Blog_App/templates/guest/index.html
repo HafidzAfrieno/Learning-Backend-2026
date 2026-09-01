@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+<!-- Mengganti judul halaman (opsional) -->
+{% block title %}Halaman Utama - Blog Pribadi{% endblock %}
+
+<!-- Mengisi bagian main/konten utama -->
+{% block content %}
+    <h1>Daftar Artikel</h1>
+    
+    {% for article in articles %}
+        <div class="card">
+            <h2>{{ article.title }}</h2>
+            <p>{{ article.content }}</p>
+        </div>
+    {% else %}
+        <p>Belum ada artikel.</p>
+    {% endfor %}
+{% endblock %}
