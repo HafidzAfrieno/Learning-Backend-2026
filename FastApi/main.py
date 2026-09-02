@@ -1,6 +1,9 @@
-from fastapi import FastAPI,HTTPException
-from fastapi.security import HTTPBasic,HTTPBasicCredentials
+from fastapi import FastAPI, Depends, HTTPException, status
+from datetime import datetime, timedelta
+from auth import AuthJwt
+from ConvertNumber import ConvertNumber
 from pydantic import BaseModel
+from fastapi.security import OAuth2PasswordRequestForm
 
 # uvicorn main:app --reload
 
@@ -16,82 +19,6 @@ class Token(BaseModel):
     access_token : str
     token_type : str
 
-class ConvertNumber:
-    def __init__(self):
-        self.from_num = 0
-        self.to_num = 0
-        self.unit_length = {"km": 1, "hm": 2, "dam": 3, "m": 4, "dm": 5, "cm": 6, "mm": 7}
-        self.unit_weight = {"kg": 1, "hg": 2, "dag": 3, "g": 4, "dg": 5, "cg": 6, "mg": 7}
-        self.unit_tempr = {"c": 1, "r": 2, "f": 3, "k": 4}
-
-    def convert_length(self,from_num:int,unit_from:str,unit_to:str):
-        unit_from = unit_from.lower()
-        unit_to = unit_to.lower()
-
-        if unit_from not in self.unit_length or unit_to not in self.unit_length:
-            raise ValueError("Satuan panjang tidak valid.")
-
-        self.from_num = from_num
-        unit_type_1 = self.unit_length[unit_from]
-        unit_type_2 = self.unit_length[unit_to]
-
-        # Selisih tingkat satuan panjang
-        step = abs(unit_type_1 - unit_type_2)
-        if unit_type_1 < unit_type_2:
-            self.to_num = from_num * (10 ** step)
-        else:                        
-            self.to_num = from_num / (10 ** step)
-        return self.to_num
-
-    def convert_weight(self, from_num: float, unit_from: str, unit_to: str) -> float:
-        unit_from = unit_from.lower()
-        unit_to = unit_to.lower()
-
-        if unit_from not in self.unit_weight or unit_to not in self.unit_weight:
-            raise ValueError("Satuan berat tidak valid.")
-
-        self.from_num = from_num
-        unit_type_1 = self.unit_weight[unit_from]
-        unit_type_2 = self.unit_weight[unit_to]
-
-        # Selisih tingkat satuan berat
-        step = abs(unit_type_1 - unit_type_2)
-        if unit_type_1 < unit_type_2:
-            self.to_num = from_num * (10 ** step)
-        else:                       
-            self.to_num = from_num / (10 ** step)
-        return self.to_num
-
-    def convert_tempr(self, from_num: float, unit_from: str, unit_to: str) -> float:
-        unit_from = unit_from.lower()
-        unit_to = unit_to.lower()
-
-        if unit_from not in self.unit_tempr or unit_to not in self.unit_tempr:
-            raise ValueError("Satuan suhu tidak valid.")
-
-        self.from_num = from_num
-
-        # 1. Ubah dulu dari satuan asal ke Celcius sebagai standar
-        if unit_from == "c":
-            celsius = from_num
-        elif unit_from == "r":
-            celsius = from_num * (5 / 4)
-        elif unit_from == "f":
-            celsius = (from_num - 32) * (5 / 9)
-        elif unit_from == "k":
-            celsius = from_num - 273.15
-
-        # 2. Ubah dari Celcius ke satuan tujuan
-        if unit_to == "c":
-            self.to_num = celsius
-        elif unit_to == "r":
-            self.to_num = celsius * (4 / 5)
-        elif unit_to == "f":
-            self.to_num = (celsius * 9 / 5) + 32
-        elif unit_to == "k":
-            self.to_num = celsius + 273.15
-        return self.to_num
-
 class ConvertRequest(BaseModel):
     type_unit: str
     from_num: float
@@ -99,6 +26,7 @@ class ConvertRequest(BaseModel):
     unit_to: str
     
 convert = ConvertNumber()
+securty = AuthJwt()
 
 @app.get("/")
 async def root():
@@ -116,12 +44,30 @@ async def api_convert(data: ConvertRequest) -> dict:
         raise HTTPException(status_code=400, detail="Tipe unit tidak dikenal")
     return {"result_convert": result}
 
+@app.post("register")
+async def register(user: UserRegister):
+    if user.username in securty.fake_users_db:
+        raise HTTPException(status_code=400, detail="Username sudah terdaftar")
+    hashed_password = securty.get_password_has(user.password)
+    securty.fake_users_db[user.username] = {
+        "username" : user.username,
+        "password" : hashed_password
+    }
+    return{"message":"Registrasi Berhasil!"}
 
+@app.post("/token",response_model=Token)
+async def login(form_data : OAuth2PasswordRequestForm = Depends()):
+    user = securty.fake_users_db.get(form_data.username)
+    if not user or not securty.verify_password(form_data.password,user["password"]):
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detil       = "Username Atau Password Salah",
+            headers     = {"WWW-Authenticate": "Bearer"}
+        )
+    access_token_expires = timedelta(minutes=securty.__ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = securty.create_access_token(data={"sub": user["username"]}, expires_delta=access_token_expires)
+    return {"access_token":access_token,"token_type":"bearer"}
 
-
-    
-
-
-
-
-
+@app.get("/users/me")
+def read_users_me(current_user: dict = Depends(securty.get_current_user())):
+    return {"username": current_user["username"], "status": "Aktif"}
