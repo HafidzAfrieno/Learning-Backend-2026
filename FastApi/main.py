@@ -59,6 +59,7 @@ async def register(user: UserRegister):
 @app.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = securty.fake_users_db.get(form_data.username)
+
     if not user or not securty.verify_password(form_data.password, user["password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -71,8 +72,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @app.get("/users/me")
-async def read_users_me(current_user: dict = Depends(securty.get_current_user)):
-    return {
-        "username": current_user["username"], 
-        "status": "Aktif"
-    }
+async def read_users_me(token: str = Depends(securty.oauth2_scheme)):
+    current_user = securty.get_current_user(token)
+    return {"username": current_user["username"], "status": "Aktif"}

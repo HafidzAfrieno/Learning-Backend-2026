@@ -33,7 +33,7 @@ class AuthJwt:
         token_jwt = jwt.encode(to_encode, self.__SECRET_KEY, algorithm=self.__ALGORITHM)
         return token_jwt
 
-    def get_current_user(self, token: str = Depends(OAuth2PasswordBearer(tokenUrl="token"))):
+    def get_current_user(self, token: str = None):
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token tidak valid atau telah kadaluwarsa",
