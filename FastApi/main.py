@@ -48,7 +48,7 @@ async def api_convert(data: ConvertRequest) -> dict:
 async def register(user: UserRegister):
     if user.username in securty.fake_users_db:
         raise HTTPException(status_code=400, detail="Username sudah terdaftar")
-    hashed_password = securty.get_password_has(user.password)
+    hashed_password = securty.get_password_hash(user.password)
     securty.fake_users_db[user.username] = {
         "username" : user.username,
         "password" : hashed_password
@@ -69,5 +69,5 @@ async def login(form_data : OAuth2PasswordRequestForm = Depends()):
     return {"access_token":access_token,"token_type":"bearer"}
 
 @app.get("/users/me")
-def read_users_me(current_user: dict = Depends(securty.get_current_user())):
+def read_users_me(current_user: dict = Depends(securty.get_current_user)):
     return {"username": current_user["username"], "status": "Aktif"}
