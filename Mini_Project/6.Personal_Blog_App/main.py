@@ -14,18 +14,17 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 db_handler = JsonFileHandler()
 
 @app.post("/register")
-def register(username: str = Form(...), password: str = Form(...)):
+async def register(username: str = Form(...), password: str = Form(...)):
     users = db_handler.read_data() 
     if username in users:
         raise HTTPException(status_code=400, detail="Username sudah terdaftar")
-
     hashed_password = auth.hash_password(password)
     users[username] = {"username": username, "password": hashed_password}
     db_handler.write_data(users) 
     return {"message": "User berhasil terdaftar"}
 
 @app.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     users = db_handler.read_data()
     user = users.get(form_data.username)
     if not user or not auth.verify_password(form_data.password, user["password"]):
@@ -36,12 +35,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = auth.create_access_token(data={"sub": user["username"]})
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/", response_class=HTMLResponse)
-def home_page(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
 @app.get("/me")
-def read_users_me(current_user: dict = Depends(auth.get_current_user)):
+async def read_users_me(current_user: dict = Depends(auth.get_current_user)):
     return current_user
 
 #=======================================================================================================

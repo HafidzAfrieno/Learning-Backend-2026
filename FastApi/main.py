@@ -1,9 +1,20 @@
 from fastapi import FastAPI,HTTPException
+from fastapi.security import HTTPBasic,HTTPBasicCredentials
 from pydantic import BaseModel
 
 # uvicorn main:app --reload
 
 app = FastAPI()
+
+class UserRegister(BaseModel):
+    username: str
+    useremail : str
+    role: str
+    password :str
+
+class Token(BaseModel):
+    access_token : str
+    token_type : str
 
 class ConvertNumber:
     def __init__(self):
