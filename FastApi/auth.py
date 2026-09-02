@@ -1,34 +1,31 @@
-from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
+from datetime import datetime, timedelta, timezone
 from typing import Optional
+import bcrypt
 import jwt
 
 class AuthJwt:
     def __init__(self):
-        # Secret key untuk menandatangani JWT
         self.__SECRET_KEY = "uerifjdskjhfjvflskvnidsfvnsdfkjlvdfvj838riog"
         self.__ALGORITHM = "HS256"
         self.__ACCESS_TOKEN_EXPIRE_MINUTES = 30
         self.fake_users_db = {}
-        
-        # Context untuk hashing password
-        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        
-        # Handler skema OAuth2 (diubah ke Password Bearer agar sesuai dengan PasswordRequestForm)
         self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
     def get_password_hash(self, password: str) -> str:
-        return self.pwd_context.hash(password)
+        pwd_bytes = password.encode('utf-8')
+        salt = bcrypt.gensalt()
+        hashed_bytes = bcrypt.hashpw(pwd_bytes, salt)
+        return hashed_bytes.decode('utf-8')
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        return self.pwd_context.verify(plain_password, hashed_password)
+        plain_pwd_bytes = plain_password.encode('utf-8')
+        hashed_pwd_bytes = hashed_password.encode('utf-8')
+        return bcrypt.checkpw(plain_pwd_bytes, hashed_pwd_bytes)
 
     def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None) -> str:
         to_encode = data.copy()
-        
-        # Menggunakan timezone.utc menggantikan datetime.utcnow() yang sudah deprecated
         expire_time = expires_delta or timedelta(minutes=self.__ACCESS_TOKEN_EXPIRE_MINUTES)
         expire = datetime.now(timezone.utc) + expire_time
         
@@ -36,7 +33,7 @@ class AuthJwt:
         token_jwt = jwt.encode(to_encode, self.__SECRET_KEY, algorithm=self.__ALGORITHM)
         return token_jwt
 
-    def get_current_user(self, token: str):
+    def get_current_user(self, token: str = Depends(OAuth2PasswordBearer(tokenUrl="token"))):
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token tidak valid atau telah kadaluwarsa",
